@@ -18,11 +18,7 @@ const shopReviewRouter = require("./routes/shop/review-routes");
 const commonFeatureRouter = require("./routes/common/feature-routes");
 
 mongoose
-  .connect(process.env.MONGO_URL, {
-    serverSelectionTimeoutMS: 20000,
-    socketTimeoutMS: 20000,
-    connectTimeoutMS: 20000,
-  })
+  .connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
