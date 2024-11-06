@@ -17,14 +17,27 @@ const shopReviewRouter = require("./routes/shop/review-routes");
 
 const commonFeatureRouter = require("./routes/common/feature-routes");
 
-mongoose
-  .connect(process.env.MONGO_URL, {
-    serverSelectionTimeoutMS: 20000,
-    socketTimeoutMS: 20000,
-    connectTimeoutMS: 20000,
-  })
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+const connectWithRetry = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 20000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 20000,
+      keepAlive: true,
+      keepAliveInitialDelay: 300000,
+      bufferCommands: false, // Désactive la mise en buffer des commandes
+    });
+    console.log("MongoDB connected successfully");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    console.log("Retrying in 5 seconds...");
+    setTimeout(connectWithRetry, 5000);
+  }
+};
+
+connectWithRetry();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
